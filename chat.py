@@ -7,6 +7,9 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.memory import ConversationBufferMemory
 
 
+# Create a CallbackManager object and assign it to the variable callback_manager
+# The CallbackManager takes a list of callback handlers as an argument
+# In this case, the list contains a single instance of the StreamingStdOutCallbackHandler class
 callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
 
 llm = LlamaCpp(
@@ -20,7 +23,7 @@ llm = LlamaCpp(
     temperature=0.95,
     n_gpu_layers=1,
     callback_manager=callback_manager,
-)
+)  # type: ignore
 
 template = """
 <|im_start|>system
@@ -38,22 +41,18 @@ prompt = PromptTemplate(input_variables=["chat_history", "question"], template=t
 memory = ConversationBufferMemory(memory_key="chat_history")
 
 llm_chain = LLMChain(
-    llm=llm, 
-    prompt=prompt, 
+    llm=llm,
+    prompt=prompt,
     verbose=True,
-    memory=memory, 
-    )
+    memory=memory,
+)
 
 while True:
-    user_question = input("Me: ") 
+    user_question = input("Me: ")
 
-    if user_question.strip() == "quit" or user_question.strip() == "exit" or user_question.strip() == "bye":
+    if user_question.strip().lower() in ["quit", "exit", "bye"]:
         print("Exiting program...")
         time.sleep(2)
         break
 
-
-    # formatted_prompt = prompt.format(question=user_question)
-
     llm_chain.run(question=user_question)
-
